@@ -58,7 +58,7 @@ export default function GiveawayTracker() {
     const newWinners = [];
 
     for (const line of lines) {
-      const match = line.match(/\|\s*\d+\s*\|\s*(\d+)\s*\|\s*([^\|]+)\s*\|/);
+      const match = line.match(/\|\s*\d+\s*\|\s*(\d+)\s*\|\s*([^|]+)\s*\|/);
       if (match) {
         const userId = match[1].trim();
         const username = match[2].trim();
@@ -112,25 +112,6 @@ export default function GiveawayTracker() {
     setPasteInput('');
   };
 
-  const clearData = async () => {
-    if (window.confirm('Are you sure you want to clear all pumpkin tracking data?')) {
-      await saveToFirebase({});
-      setWinners({});
-      setMessage('🧹cleared!');
-    }
-  };
-
-  const exportData = () => {
-    const dataStr = JSON.stringify(winners, null, 2);
-    const blob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `pumpkin-winners-${new Date().toISOString().split('T')[0]}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
   const sortedWinners = Object.entries(winners).sort((a, b) => b[1].count - a[1].count);
   const displayedWinners = hideKings ? sortedWinners.filter(([_, data]) => data.count < 10) : sortedWinners;
   const pumpkinKings = sortedWinners.filter(([_, data]) => data.count >= 10);
@@ -156,7 +137,7 @@ export default function GiveawayTracker() {
             </div>
 
             <p className="text-center text-orange-300 mb-6 text-lg">
-                They need to win 10 Giveaways and then you give the Pumpkin Master role
+              They need to win 10 Giveaways and then you give the Pumpkin Master role
             </p>
 
             <div className="mb-6">
