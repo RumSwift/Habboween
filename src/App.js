@@ -99,7 +99,7 @@ export default function GiveawayTracker() {
                     skippedCount++;
                 }
             } else {
-                updated[userId] = { username, count: 1 };
+                updated[userId] = { username, count: 1, roleGiven: false };
                 addedCount++;
             }
         });
@@ -113,6 +113,15 @@ export default function GiveawayTracker() {
         }
         setMessage(msg);
         setPasteInput('');
+    };
+
+    const toggleRoleGiven = async (userId) => {
+        const updated = { ...winners };
+        if (updated[userId]) {
+            updated[userId].roleGiven = !updated[userId].roleGiven;
+            await saveToFirebase(updated);
+            setWinners(updated);
+        }
     };
 
     const sortedWinners = Object.entries(winners).sort((a, b) => b[1].count - a[1].count);
@@ -235,6 +244,7 @@ export default function GiveawayTracker() {
                                     <th className="text-left text-green-400 font-bold py-3 px-4">Discord ID</th>
                                     <th className="text-center text-green-400 font-bold py-3 px-4">Brains</th>
                                     <th className="text-center text-green-400 font-bold py-3 px-4">Status</th>
+                                    <th className="text-center text-green-400 font-bold py-3 px-4">Role</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -269,6 +279,23 @@ export default function GiveawayTracker() {
                             </span>
                                                 )}
                                             </td>
+                                            <td className="py-3 px-4 text-center">
+                                                {data.count >= 10 ? (
+                                                    <label className="flex items-center justify-center gap-2 cursor-pointer">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={data.roleGiven || false}
+                                                            onChange={() => toggleRoleGiven(userId)}
+                                                            className="w-5 h-5 cursor-pointer accent-green-600"
+                                                        />
+                                                        <span className={`font-semibold ${data.roleGiven ? 'text-green-400' : 'text-gray-400'}`}>
+                                {data.roleGiven ? 'Role Added' : 'Add Role'}
+                              </span>
+                                                    </label>
+                                                ) : (
+                                                    <span className="text-gray-600 text-sm">-</span>
+                                                )}
+                                            </td>
                                         </tr>
                                     );
                                 })}
@@ -276,6 +303,7 @@ export default function GiveawayTracker() {
                             </table>
                         </div>
 
+                        {/* Pagination */}
                         {totalPages > 1 && (
                             <div className="flex items-center justify-center gap-2 mt-6">
                                 <button
@@ -312,7 +340,9 @@ export default function GiveawayTracker() {
                             </div>
                         )}
 
-
+                        <div className="text-center text-green-400 mt-4">
+                            Showing {startIndex + 1}-{Math.min(endIndex, filteredWinners.length)} of {filteredWinners.length} results
+                        </div>
                     </div>
                 )}
             </div>
