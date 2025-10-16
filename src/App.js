@@ -23,6 +23,7 @@ export default function GiveawayTracker() {
     const [pasteInput, setPasteInput] = useState('');
     const [message, setMessage] = useState('');
     const [hideKings, setHideKings] = useState(false);
+    const [hideWithRole, setHideWithRole] = useState(false);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
@@ -125,7 +126,17 @@ export default function GiveawayTracker() {
     };
 
     const sortedWinners = Object.entries(winners).sort((a, b) => b[1].count - a[1].count);
-    const displayedWinners = hideKings ? sortedWinners.filter(([_, data]) => data.count < 10) : sortedWinners;
+
+    // Apply filters
+    let displayedWinners = sortedWinners;
+
+    if (hideKings) {
+        displayedWinners = displayedWinners.filter(([_, data]) => data.count < 10);
+    }
+
+    if (hideWithRole) {
+        displayedWinners = displayedWinners.filter(([_, data]) => !data.roleGiven);
+    }
 
     // Filter by search term
     const filteredWinners = displayedWinners.filter(([userId, data]) => {
@@ -144,7 +155,7 @@ export default function GiveawayTracker() {
     // Reset to page 1 when search or filter changes
     useEffect(() => {
         setCurrentPage(1);
-    }, [searchTerm, hideKings]);
+    }, [searchTerm, hideKings, hideWithRole]);
 
     if (loading) {
         return (
@@ -219,7 +230,7 @@ export default function GiveawayTracker() {
                             <h2 className="text-3xl font-bold text-green-500">
                                 Zombie Leaderboard
                             </h2>
-                            <div className="flex gap-3 items-center">
+                            <div className="flex flex-wrap gap-3 items-center justify-center">
                                 <input
                                     type="text"
                                     placeholder="Search username or ID..."
@@ -229,9 +240,23 @@ export default function GiveawayTracker() {
                                 />
                                 <button
                                     onClick={() => setHideKings(!hideKings)}
-                                    className="bg-green-600 text-white font-bold py-2 px-4 rounded-xl hover:bg-green-700 transition-all border-2 border-green-900 whitespace-nowrap"
+                                    className={`font-bold py-2 px-4 rounded-xl transition-all border-2 whitespace-nowrap ${
+                                        hideKings
+                                            ? 'bg-green-600 text-white border-green-900 hover:bg-green-700'
+                                            : 'bg-gray-700 text-green-300 border-gray-600 hover:bg-gray-600'
+                                    }`}
                                 >
-                                    {hideKings ? 'Show Masters' : 'Hide Masters'}
+                                    {hideKings ? '✓ Masters Hidden' : 'Hide All Masters'}
+                                </button>
+                                <button
+                                    onClick={() => setHideWithRole(!hideWithRole)}
+                                    className={`font-bold py-2 px-4 rounded-xl transition-all border-2 whitespace-nowrap ${
+                                        hideWithRole
+                                            ? 'bg-green-600 text-white border-green-900 hover:bg-green-700'
+                                            : 'bg-gray-700 text-green-300 border-gray-600 hover:bg-gray-600'
+                                    }`}
+                                >
+                                    {hideWithRole ? '✓ With Role Hidden' : 'Hide With Role'}
                                 </button>
                             </div>
                         </div>
