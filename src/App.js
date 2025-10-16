@@ -157,6 +157,59 @@ export default function GiveawayTracker() {
         setCurrentPage(1);
     }, [searchTerm, hideKings, hideWithRole]);
 
+    // Smart pagination display for mobile
+    const getPaginationPages = () => {
+        const pages = [];
+        const maxVisible = window.innerWidth < 640 ? 3 : 7; // 3 on mobile, 7 on desktop
+
+        if (totalPages <= maxVisible) {
+            // Show all pages if total is less than max visible
+            for (let i = 1; i <= totalPages; i++) {
+                pages.push(i);
+            }
+        } else {
+            // Always show first page
+            pages.push(1);
+
+            let start, end;
+
+            if (currentPage <= Math.ceil(maxVisible / 2)) {
+                // Near the beginning
+                start = 2;
+                end = maxVisible - 1;
+            } else if (currentPage >= totalPages - Math.floor(maxVisible / 2)) {
+                // Near the end
+                start = totalPages - (maxVisible - 2);
+                end = totalPages - 1;
+            } else {
+                // In the middle
+                const half = Math.floor((maxVisible - 3) / 2);
+                start = currentPage - half;
+                end = currentPage + half;
+            }
+
+            // Add ellipsis if there's a gap after first page
+            if (start > 2) {
+                pages.push('...');
+            }
+
+            // Add middle pages
+            for (let i = start; i <= end; i++) {
+                pages.push(i);
+            }
+
+            // Add ellipsis if there's a gap before last page
+            if (end < totalPages - 1) {
+                pages.push('...');
+            }
+
+            // Always show last page
+            pages.push(totalPages);
+        }
+
+        return pages;
+    };
+
     if (loading) {
         return (
             <div className="min-h-screen bg-gray-900 flex items-center justify-center">
@@ -166,61 +219,61 @@ export default function GiveawayTracker() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-900 p-6">
+        <div className="min-h-screen bg-gray-900 p-3 sm:p-6">
             <div className="max-w-6xl mx-auto">
-                <div className="bg-gray-800 rounded-3xl border-4 border-green-600 p-8 mb-6">
-                    <div className="flex items-center justify-center gap-3 mb-6">
-                        <h1 className="text-4xl font-bold text-green-500">
+                <div className="bg-gray-800 rounded-2xl sm:rounded-3xl border-2 sm:border-4 border-green-600 p-4 sm:p-8 mb-4 sm:mb-6">
+                    <div className="flex items-center justify-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+                        <h1 className="text-2xl sm:text-4xl font-bold text-green-500 text-center">
                             Zombie Brain Tracker
                         </h1>
                     </div>
 
-                    <p className="text-center text-green-300 mb-6 text-lg">
+                    <p className="text-center text-green-300 mb-4 sm:mb-6 text-sm sm:text-lg px-2">
                         Collect 10 brains to become a Zombie Master
                     </p>
 
-                    <div className="mb-6">
-                        <label className="block text-green-400 font-bold mb-2 text-lg">
+                    <div className="mb-4 sm:mb-6">
+                        <label className="block text-green-400 font-bold mb-2 text-base sm:text-lg">
                             Paste Giveaway Results:
                         </label>
                         <textarea
                             value={pasteInput}
                             onChange={(e) => setPasteInput(e.target.value)}
                             placeholder="Paste the giveaway results here..."
-                            className="w-full h-48 p-4 bg-black text-green-200 placeholder-green-700 rounded-xl border-2 border-green-700 focus:border-green-500 focus:ring-2 focus:ring-green-500 outline-none font-mono text-sm"
+                            className="w-full h-32 sm:h-48 p-3 sm:p-4 bg-black text-green-200 placeholder-green-700 rounded-lg sm:rounded-xl border-2 border-green-700 focus:border-green-500 focus:ring-2 focus:ring-green-500 outline-none font-mono text-xs sm:text-sm"
                         />
                     </div>
 
                     <div className="flex gap-3 mb-4">
                         <button
                             onClick={handlePaste}
-                            className="w-full bg-green-600 text-white font-bold py-3 px-6 rounded-xl hover:bg-green-700 transition-all border-2 border-green-900 text-lg"
+                            className="w-full bg-green-600 text-white font-bold py-2 sm:py-3 px-4 sm:px-6 rounded-lg sm:rounded-xl hover:bg-green-700 transition-all border-2 border-green-900 text-base sm:text-lg"
                         >
                             Add Brains (Winners)
                         </button>
                     </div>
 
                     {message && (
-                        <div className="bg-green-600/30 border-2 border-green-500 text-green-200 p-3 rounded-xl text-center font-bold">
+                        <div className="bg-green-600/30 border-2 border-green-500 text-green-200 p-2 sm:p-3 rounded-lg sm:rounded-xl text-center font-bold text-sm sm:text-base">
                             {message}
                         </div>
                     )}
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <div className="bg-gray-800 rounded-xl p-6 text-center border-2 border-green-700">
-                        <div className="text-4xl font-bold text-green-400">{sortedWinners.length}</div>
-                        <div className="text-green-300 font-semibold">Zombie Brains</div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-6">
+                    <div className="bg-gray-800 rounded-lg sm:rounded-xl p-4 sm:p-6 text-center border-2 border-green-700">
+                        <div className="text-2xl sm:text-4xl font-bold text-green-400">{sortedWinners.length}</div>
+                        <div className="text-green-300 font-semibold text-sm sm:text-base">Zombie Brains</div>
                     </div>
-                    <div className="bg-gray-800 rounded-xl p-6 text-center border-2 border-red-600">
-                        <div className="text-4xl font-bold text-red-400">{zombieMasters.length}</div>
-                        <div className="text-red-300 font-semibold">Zombie Masters</div>
+                    <div className="bg-gray-800 rounded-lg sm:rounded-xl p-4 sm:p-6 text-center border-2 border-red-600">
+                        <div className="text-2xl sm:text-4xl font-bold text-red-400">{zombieMasters.length}</div>
+                        <div className="text-red-300 font-semibold text-sm sm:text-base">Zombie Masters</div>
                     </div>
-                    <div className="bg-gray-800 rounded-xl p-6 text-center border-2 border-green-700">
-                        <div className="text-4xl font-bold text-green-500">
+                    <div className="bg-gray-800 rounded-lg sm:rounded-xl p-4 sm:p-6 text-center border-2 border-green-700">
+                        <div className="text-2xl sm:text-4xl font-bold text-green-500">
                             {sortedWinners.reduce((sum, [_, data]) => sum + data.count, 0)}
                         </div>
-                        <div className="text-green-300 font-semibold">Total Brains</div>
+                        <div className="text-green-300 font-semibold text-sm sm:text-base">Total Brains</div>
                     </div>
                 </div>
 
@@ -328,44 +381,53 @@ export default function GiveawayTracker() {
                             </table>
                         </div>
 
-                        {/* Pagination */}
+                        {/* Improved Mobile-Friendly Pagination */}
                         {totalPages > 1 && (
-                            <div className="flex items-center justify-center gap-2 mt-6">
+                            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-2 mt-6">
                                 <button
                                     onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                                     disabled={currentPage === 1}
-                                    className="px-4 py-2 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed transition-all"
+                                    className="w-full sm:w-auto px-4 py-2 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed transition-all text-sm sm:text-base"
                                 >
                                     Previous
                                 </button>
 
-                                <div className="flex gap-2">
-                                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                                        <button
-                                            key={page}
-                                            onClick={() => setCurrentPage(page)}
-                                            className={`px-4 py-2 font-bold rounded-lg transition-all ${
-                                                currentPage === page
-                                                    ? 'bg-green-500 text-white'
-                                                    : 'bg-gray-700 text-green-300 hover:bg-gray-600'
-                                            }`}
-                                        >
-                                            {page}
-                                        </button>
+                                <div className="flex gap-1 sm:gap-2 flex-wrap justify-center">
+                                    {getPaginationPages().map((page, index) => (
+                                        page === '...' ? (
+                                            <span
+                                                key={`ellipsis-${index}`}
+                                                className="px-2 sm:px-3 py-2 text-green-400 font-bold"
+                                            >
+                                                ...
+                                            </span>
+                                        ) : (
+                                            <button
+                                                key={page}
+                                                onClick={() => setCurrentPage(page)}
+                                                className={`px-3 sm:px-4 py-2 font-bold rounded-lg transition-all text-sm sm:text-base ${
+                                                    currentPage === page
+                                                        ? 'bg-green-500 text-white'
+                                                        : 'bg-gray-700 text-green-300 hover:bg-gray-600'
+                                                }`}
+                                            >
+                                                {page}
+                                            </button>
+                                        )
                                     ))}
                                 </div>
 
                                 <button
                                     onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                                     disabled={currentPage === totalPages}
-                                    className="px-4 py-2 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed transition-all"
+                                    className="w-full sm:w-auto px-4 py-2 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed transition-all text-sm sm:text-base"
                                 >
                                     Next
                                 </button>
                             </div>
                         )}
 
-                        <div className="text-center text-green-400 mt-4">
+                        <div className="text-center text-green-400 mt-4 text-sm sm:text-base">
                             Showing {startIndex + 1}-{Math.min(endIndex, filteredWinners.length)} of {filteredWinners.length} results
                         </div>
                     </div>
